@@ -18,16 +18,17 @@ class FileSelector(Frame):
         self.button_frame = Frame(self)
         self.folder_frame = Frame(self)
 
-        self.files_view = Listbox(self, width=65, height=20)
-        self.folder_entry = Entry(self.folder_frame, width=58,
+        self.files_view = Listbox(self, width=35, height=20)
+        self.folder_entry = Entry(self.folder_frame, width=27,
                                   textvariable=self.base_dir)
 
         self.create_widgets()
 
     def create_widgets(self):
         """Create GUI elements"""
-        pad_y = 5
-        pad_x = 10
+        pad_y = 1
+        pad_x = 3
+        button_width = 7
         Label(self, text="Images", font=14).pack()
         # List for files
         self.files_view.pack(pady=pad_y, padx=pad_x)
@@ -37,16 +38,16 @@ class FileSelector(Frame):
         self.folder_entry.pack(side=RIGHT, pady=pad_y)
 
         # Button panel and error message
-        Button(self.button_frame, text="Choose folder",
+        Button(self.button_frame, text="Choose folder", width=button_width,
                command=self.fill_list).pack(side=LEFT, padx=pad_x)
 
-        Button(self.button_frame, text="Choose file(s)",
+        Button(self.button_frame, text="Choose file(s)", width=button_width,
                command=self.select_files).pack(side=LEFT)
 
-        Button(self.button_frame, text="Clear files",
+        Button(self.button_frame, text="Clear files", width=button_width,
                command=self.clear_files).pack(side=RIGHT)
 
-        Button(self.button_frame, text="Remove file",
+        Button(self.button_frame, text="Remove file", width=button_width,
                command=self.remove_item).pack(side=RIGHT, padx=pad_x)
 
         # Pack frames
@@ -66,9 +67,11 @@ class FileSelector(Frame):
         self.base_dir.set(filedialog.askdirectory())
 
     def select_files(self):
-        file_types = [('Images', '*.jpg;*.jpeg;*.png;*.bmp;*.tiff')]
+        file_types = [('Images', '*.JPEG;*.JPG;*.jpg;*.jpeg;*.png;*.bmp;*.tiff')]
+
         files = filedialog.askopenfilenames(title="Select images",
                                             filetypes=file_types)
+
         for _file in files:
             if _file not in self.files:
                 self.files.append(_file)
@@ -87,7 +90,7 @@ class FileSelector(Frame):
     def refresh_files(self):
         """Update files list"""
         self.files = []
-        types = ['.png', '.jpg', '.jpeg', '.bmp', '.tiff']
+        types = ['.PNG', '.JPG', 'JPEG', '.BMP', '.TIFF', '.png', '.jpg', '.jpeg', '.bmp', '.tiff']
         try:
             for _file in os.listdir(self.base_dir.get()):
                 if os.path.isfile(os.path.join(self.base_dir.get(), _file)):

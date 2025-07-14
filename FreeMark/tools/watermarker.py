@@ -1,6 +1,7 @@
 from PIL import Image
 import os
 from FreeMark.tools.help import clamp
+from FreeMark.tools.errors import BadOptionError
 
 
 class WaterMarker:
@@ -86,6 +87,48 @@ class WaterMarker:
         except ValueError:
             image.paste(self.watermark_copy, box=position)
         image.save(output_path)
+
+    def apply_watermark_preview(self, input_path, pos="SE", padding=((20, "px"), (5, "px")),
+                               scale=True, opacity=0.5):
+        """
+        应用水印到图像并返回预览图像，但不保存
+        :param input_path: 输入图像路径
+        :param pos: 水印位置，第一个字符是y轴(N/S)，第二个是x轴(E/W)
+        :param padding: 填充格式 ((x_pad, unit), (y_pad, unit))
+        :param scale: 是否缩放水印
+        :param opacity: 水印不透明度(0到1之间的值)
+        :return: 带有水印的PIL图像对象
+        """
+        try:
+            image = Image.open(input_path)
+        except FileNotFoundError:
+            raise BadOptionError("找不到输入图像文件")
+        except OSError:
+            raise BadOptionError("输入图像格式不兼容")
+
+        watermark_copy = None
+        if scale:
+            watermark_copy = self.scale_watermark(image)
+        else:
+            watermark_copy = self.watermark.copy()
+
+        # 改变水印不透明度
+        if opacity < 1:
+            watermark_copy = self.change_opacity(watermark_copy, opacity)
+
+        position = self.get_watermark_position(image, watermark_copy,
+                                              pos=pos, padding=padding)
+
+        try:
+            # 创建一个新的图像副本，以免修改原始图像
+            preview_image = image.copy()
+            preview_image.paste(watermark_copy, box=position,
+                              mask=watermark_copy)
+        except ValueError:
+            preview_image = image.copy()
+            preview_image.paste(watermark_copy, box=position)
+        
+        return preview_image
 
     @staticmethod
     def change_opacity(image, opacity):
@@ -182,5 +225,5 @@ class WaterMarker:
         if pos[1] == "E":
             x = image.size[0] - watermark.size[0] - padx
         else:
-            x = pady
+            x = padx
         return x, y

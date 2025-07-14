@@ -26,6 +26,9 @@ class FreeMarkApp(Frame):
         file_selector = FileSelector(options_frame)
         options_pane = OptionsPane(options_frame)
 
+        # Set file_selector to options_pane for preview functionality
+        options_pane.set_file_selector(file_selector)
+        
         file_selector.pack(side=LEFT, padx=(2, 5))
         options_pane.pack(side=RIGHT, fill=Y, pady=10)
 

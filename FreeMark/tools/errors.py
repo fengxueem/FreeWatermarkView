@@ -1,7 +1,5 @@
-
 class BadOptionError(Exception):
     """
-    Thrown if option isn't properly set, used to pass a custom message to
-    the error window.
+    当提供的选项无效时抛出的异常
     """
     pass
