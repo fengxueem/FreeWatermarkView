@@ -69,7 +69,9 @@ class PreviewWindow(Toplevel):
                 pos=self.options.get("pos"),
                 padding=self.options.get("padding"),
                 scale=self.options.get("scale"),
-                opacity=self.options.get("opacity")
+                opacity=self.options.get("opacity"),
+                scale_x=self.options.get("scale_x", 1.0),
+                scale_y=self.options.get("scale_y", 1.0)
             )
             
             # 调整图像大小以适应窗口

@@ -95,7 +95,9 @@ class OptionsPane(Frame):
             "pos": self.get_watermark_pos(),
             "padding": self.get_padding(),
             "opacity": self.get_opacity(),
-            "scale": self.should_scale()
+            "scale": self.should_scale(),
+            "scale_x": self.watermark_options.scale_x.get(),
+            "scale_y": self.watermark_options.scale_y.get()
         }
         
         # Create preview window

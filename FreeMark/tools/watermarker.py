@@ -40,7 +40,7 @@ class WaterMarker:
 
     def apply_watermark(self, input_path, output_path, scale=True,
                         pos="SE", padding=((20, "px"), (5, "px")),
-                        opacity=0.5):
+                        opacity=0.5, scale_x=1.0, scale_y=1.0):
         """
         Apply a free_mark to an image
         :param input_path: path to image on disk as a string
@@ -49,6 +49,8 @@ class WaterMarker:
         :param opacity: free_mark opacity (a value between 0 and 1)
         :param pos: Assumes first char is y (N/S) and second is x (E/W)
         :param padding: padding in format ((x_pad, unit), (y_pad, unit))
+        :param scale_x: 横向缩放比例
+        :param scale_y: 纵向缩放比例
         """
         # Don't overwrite existing files unless asked to
         if os.path.isfile(output_path) and not self.overwrite:
@@ -58,7 +60,7 @@ class WaterMarker:
 
         if scale and \
                 (not self.previous_size or self.previous_size != image.size):
-            self.watermark_copy = self.scale_watermark(image)
+            self.watermark_copy = self.scale_watermark(image, scale_x, scale_y)
             if opacity < 1:
                 self.needs_opacity = True
             else:
@@ -89,7 +91,7 @@ class WaterMarker:
         image.save(output_path)
 
     def apply_watermark_preview(self, input_path, pos="SE", padding=((20, "px"), (5, "px")),
-                               scale=True, opacity=0.5):
+                               scale=True, opacity=0.5, scale_x=1.0, scale_y=1.0):
         """
         应用水印到图像并返回预览图像，但不保存
         :param input_path: 输入图像路径
@@ -97,6 +99,8 @@ class WaterMarker:
         :param padding: 填充格式 ((x_pad, unit), (y_pad, unit))
         :param scale: 是否缩放水印
         :param opacity: 水印不透明度(0到1之间的值)
+        :param scale_x: 横向缩放比例
+        :param scale_y: 纵向缩放比例
         :return: 带有水印的PIL图像对象
         """
         try:
@@ -108,7 +112,7 @@ class WaterMarker:
 
         watermark_copy = None
         if scale:
-            watermark_copy = self.scale_watermark(image)
+            watermark_copy = self.scale_watermark(image, scale_x, scale_y)
         else:
             watermark_copy = self.watermark.copy()
 
@@ -157,11 +161,13 @@ class WaterMarker:
         image.putdata(new_data)
         return image
 
-    def scale_watermark(self, image):
+    def scale_watermark(self, image, scale_x=1.0, scale_y=1.0):
         """
         Get a scaled copy of the currently loaded free_mark,
         tries to scale it to from input image's size and orientation
         :param image: PIL image object that free_mark will be applied to
+        :param scale_x: 横向缩放比例
+        :param scale_y: 纵向缩放比例
         :return: scaled copy of currently loaded free_mark as PIL image object
         """
         image_width, image_height = image.size
@@ -170,22 +176,37 @@ class WaterMarker:
         if image_width > image_height:
             # Scales the width of the free_mark based on the width of the image
             # while keeping within min/max values
-            new_width = int(clamp(image_width * self.landscape_scale_factor,
+            base_width = int(clamp(image_width * self.landscape_scale_factor,
                                   self.watermark.size[0] * self.min_scale,
                                   self.watermark.size[0] * self.max_scale))
         # Image is in the portrait position
         elif image_width < image_height:
-            new_width = int(clamp(image_width * self.portrait_scale_factor,
+            base_width = int(clamp(image_width * self.portrait_scale_factor,
                                   self.watermark.size[0] * self.min_scale,
                                   self.watermark.size[0] * self.max_scale))
         # Image is equal sided
         else:
-            new_width = int(clamp(image_width * self.equal_scale_factor,
+            base_width = int(clamp(image_width * self.equal_scale_factor,
                                   self.watermark.size[0] * self.min_scale,
                                   self.watermark.size[0] * self.max_scale))
 
-        # Determine height from new width and old height/width ratio
-        new_height = int(new_width / self.watermark_ratio)
+        # 应用用户定义的横向缩放比例
+        new_width = int(base_width * scale_x)
+        
+        # 如果使用相同的横纵比例，则根据原始比例计算高度
+        if scale_x == scale_y:
+            new_height = int(new_width / self.watermark_ratio)
+        else:
+            # 否则，单独计算高度
+            if image_width > image_height:
+                base_height = int(base_width / self.watermark_ratio)
+            elif image_width < image_height:
+                base_height = int(base_width / self.watermark_ratio)
+            else:
+                base_height = int(base_width / self.watermark_ratio)
+            
+            # 应用用户定义的纵向缩放比例
+            new_height = int(base_height * scale_y)
 
         # Apply it
         return self.watermark.copy().resize((new_width, new_height))
