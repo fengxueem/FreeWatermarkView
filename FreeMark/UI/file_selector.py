@@ -41,9 +41,6 @@ class FileSelector(Frame):
         Button(self.button_frame, text="Choose folder", width=button_width,
                command=self.fill_list).pack(side=LEFT, padx=pad_x)
 
-        Button(self.button_frame, text="Choose file(s)", width=button_width,
-               command=self.select_files).pack(side=LEFT)
-
         Button(self.button_frame, text="Clear files", width=button_width,
                command=self.clear_files).pack(side=RIGHT)
 
@@ -65,17 +62,6 @@ class FileSelector(Frame):
     def prompt_directory(self):
         """Prompt the user for a base dir"""
         self.base_dir.set(filedialog.askdirectory())
-
-    def select_files(self):
-        file_types = [('Images', '*.JPEG;*.JPG;*.jpg;*.jpeg;*.png;*.bmp;*.tiff')]
-
-        files = filedialog.askopenfilenames(title="Select images",
-                                            filetypes=file_types)
-
-        for _file in files:
-            if _file not in self.files:
-                self.files.append(_file)
-        self.refresh_list()
 
     def refresh_list(self):
         self.files_view.delete(0, END)
