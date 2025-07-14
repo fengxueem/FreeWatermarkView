@@ -35,13 +35,6 @@ class OptionsPane(Frame):
         self.watermark_selector.pack(fill=X, pady=pady, anchor=N)
         self.watermark_options.pack(fill=X, pady=pady, anchor=N)
         self.output_selector.pack(fill=X, anchor=N)
-        
-        # Add preview button
-        self.preview_frame = Frame(self)
-        self.preview_frame.pack(fill=X, pady=10, anchor=N)
-        
-        self.preview_button = Button(self.preview_frame, text="Preview", command=self.preview_watermark)
-        self.preview_button.pack(side=RIGHT, padx=5)
 
     def get_watermark_path(self):
         """

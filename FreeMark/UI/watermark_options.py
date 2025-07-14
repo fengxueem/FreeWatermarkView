@@ -106,12 +106,18 @@ class WatermarkOptions(Frame):
         opacity_frame.pack(anchor=W)
 
         # ----------- Size options -----------
-        # 保持横纵比例一致的复选框
+        # 保持横纵比例一致的复选框和预览按钮
         aspect_ratio_frame = Frame(self)
         Checkbutton(aspect_ratio_frame, text="Keep aspect ratio",
                     variable=self.keep_aspect_ratio,
                     command=self.update_aspect_ratio,
                     onvalue=True, offvalue=False).pack(side=LEFT)
+        
+        # 添加预览按钮到Keep aspect ratio的右边
+        self.preview_button = Button(aspect_ratio_frame, text="Preview", 
+                                    command=self.master.preview_watermark)
+        self.preview_button.pack(side=LEFT, padx=10)
+        
         aspect_ratio_frame.pack(anchor=W, pady=(5, 0), fill=X)
         
         # 横向缩放比例滑块
