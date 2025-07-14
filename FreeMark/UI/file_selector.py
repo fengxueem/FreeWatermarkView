@@ -118,3 +118,16 @@ class FileSelector(Frame):
         """Return path to files"""
         return [os.path.join(self.base_dir.get(), file) for file
                 in self.get_files()]
+                
+    def get_current_file_path(self):
+        """Return the path of the currently selected file, or empty string if none selected"""
+        selected = self.files_view.curselection()
+        if selected:
+            selected_item = self.files_view.get(selected[0])
+            # Check if the selected item is already a full path
+            if os.path.isabs(selected_item) or '/' in selected_item or '\\' in selected_item:
+                return selected_item
+            else:
+                # If it's just a filename, join it with the base directory
+                return os.path.join(self.base_dir.get(), selected_item)
+        return ""

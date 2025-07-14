@@ -67,13 +67,13 @@ class OptionsPane(Frame):
             messagebox.showerror("错误", "无法访问文件选择器")
             return
             
-        selected_files = self.file_selector.get_file_paths()
+        selected_files = self.file_selector.get_current_file_path()
         if not selected_files:
             messagebox.showinfo("提示", "请先选择一个图像文件")
             return
             
         # Use the first selected file for preview
-        image_path = selected_files[0]
+        image_path = selected_files
         
         watermark_path = self.get_watermark_path()
         if not watermark_path:
