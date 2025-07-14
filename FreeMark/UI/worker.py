@@ -120,7 +120,6 @@ class Worker(Frame):
         try:
             kwargs = {"pos": self.option_pane.get_watermark_pos(),
                       "padding": self.option_pane.get_padding(),
-                      "scale": self.option_pane.should_scale(),
                       "opacity": self.option_pane.get_opacity(),
                       "scale_x": self.option_pane.watermark_options.scale_x.get(),
                       "scale_y": self.option_pane.watermark_options.scale_y.get()}
