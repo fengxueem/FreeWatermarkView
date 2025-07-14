@@ -95,15 +95,16 @@ class WatermarkOptions(Frame):
         opacity_frame = Frame(self)
         Label(opacity_frame, text="Opacity").pack(side=LEFT, anchor=S)
 
-        Scale(opacity_frame, from_=0, to=100, orient=HORIZONTAL,
-              variable=self.opacity).pack(side=LEFT, anchor=N, padx=5)
+        self.opacity_slider = Scale(opacity_frame, from_=0, to=100, orient=HORIZONTAL,
+              variable=self.opacity)
+        self.opacity_slider.pack(side=LEFT, anchor=N, padx=5, fill=X, expand=True)
 
         Entry(opacity_frame, textvariable=self.opacity, width=4,
               validate="key", validatecommand=validate).pack(side=LEFT,
                                                              anchor=S, pady=3)
 
         Label(opacity_frame, text="%").pack(side=LEFT, anchor=S, pady=3)
-        opacity_frame.pack(anchor=W)
+        opacity_frame.pack(anchor=W, fill=X)
 
         # ----------- Size options -----------
         # 保持横纵比例一致的复选框和预览按钮
@@ -124,11 +125,11 @@ class WatermarkOptions(Frame):
         scale_x_frame = Frame(self)
         Label(scale_x_frame, text="Scale x:").pack(side=LEFT)
         self.scale_x_slider = Scale(scale_x_frame, from_=0.1, to=3.0, 
-                                   orient=HORIZONTAL, resolution=0.1,
+                                   orient=HORIZONTAL, resolution=0.01,
                                    variable=self.scale_x, 
                                    command=self.on_scale_x_change)
         self.scale_x_slider.pack(side=LEFT, fill=X, expand=True)
-        self.scale_x_label = Label(scale_x_frame, text="1.0x")
+        self.scale_x_label = Label(scale_x_frame, text="1.00x")
         self.scale_x_label.pack(side=LEFT, padx=5)
         scale_x_frame.pack(anchor=W, pady=(5, 0), fill=X)
         
@@ -136,11 +137,11 @@ class WatermarkOptions(Frame):
         scale_y_frame = Frame(self)
         Label(scale_y_frame, text="Scale y:").pack(side=LEFT)
         self.scale_y_slider = Scale(scale_y_frame, from_=0.1, to=3.0, 
-                                   orient=HORIZONTAL, resolution=0.1,
+                                   orient=HORIZONTAL, resolution=0.01,
                                    variable=self.scale_y, 
                                    command=self.on_scale_y_change)
         self.scale_y_slider.pack(side=LEFT, fill=X, expand=True)
-        self.scale_y_label = Label(scale_y_frame, text="1.0x")
+        self.scale_y_label = Label(scale_y_frame, text="1.00x")
         self.scale_y_label.pack(side=LEFT, padx=5)
         scale_y_frame.pack(anchor=W, pady=(5, 0), fill=X)
 
@@ -167,24 +168,24 @@ class WatermarkOptions(Frame):
         if self.keep_aspect_ratio.get():
             # 如果启用了保持横纵比例，则将纵向缩放设置为与横向缩放相同
             self.scale_y.set(self.scale_x.get())
-            self.scale_y_label.config(text=f"{self.scale_y.get():.1f}x")
+            self.scale_y_label.config(text=f"{self.scale_y.get():.2f}x")
             
     def on_scale_x_change(self, value):
         """处理横向缩放滑块的变化"""
         # 更新标签显示
-        self.scale_x_label.config(text=f"{float(value):.1f}x")
+        self.scale_x_label.config(text=f"{float(value):.2f}x")
         
         # 如果启用了保持横纵比例，则同步纵向缩放
         if self.keep_aspect_ratio.get():
             self.scale_y.set(float(value))
-            self.scale_y_label.config(text=f"{float(value):.1f}x")
+            self.scale_y_label.config(text=f"{float(value):.2f}x")
             
     def on_scale_y_change(self, value):
         """处理纵向缩放滑块的变化"""
         # 更新标签显示
-        self.scale_y_label.config(text=f"{float(value):.1f}x")
+        self.scale_y_label.config(text=f"{float(value):.2f}x")
         
         # 如果启用了保持横纵比例，则同步横向缩放
         if self.keep_aspect_ratio.get():
             self.scale_x.set(float(value))
-            self.scale_x_label.config(text=f"{float(value):.1f}x")
+            self.scale_x_label.config(text=f"{float(value):.2f}x")
