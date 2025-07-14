@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageOps
 import os
 from FreeMark.tools.help import clamp
 from FreeMark.tools.errors import BadOptionError
@@ -56,7 +56,14 @@ class WaterMarker:
         if os.path.isfile(output_path) and not self.overwrite:
             return
 
+        # 打开图像并保留EXIF数据
         image = Image.open(input_path)
+        # 根据EXIF方向信息自动旋转图像
+        image = ImageOps.exif_transpose(image)
+        # 检查图像是否有EXIF数据
+        exif = None
+        if hasattr(image, '_getexif') and image._getexif() is not None:
+            exif = image.info.get('exif')
 
         if (not self.previous_size or self.previous_size != image.size):
             self.watermark_copy = self.scale_watermark(image, scale_x, scale_y)
@@ -81,7 +88,12 @@ class WaterMarker:
                         mask=self.watermark_copy)
         except ValueError:
             image.paste(self.watermark_copy, box=position)
-        image.save(output_path)
+        
+        # 保存图像时保留EXIF数据
+        if exif:
+            image.save(output_path, exif=exif)
+        else:
+            image.save(output_path)
 
     def apply_watermark_preview(self, input_path, pos="SE", padding=((20, "px"), (5, "px")),
                                opacity=0.5, scale_x=1.0, scale_y=1.0):
@@ -97,7 +109,14 @@ class WaterMarker:
         :return: 带有水印的PIL图像对象
         """
         try:
+            # 打开图像并保留EXIF数据
             image = Image.open(input_path)
+            # 根据EXIF方向信息自动旋转图像
+            image = ImageOps.exif_transpose(image)
+            # 检查图像是否有EXIF数据
+            exif = None
+            if hasattr(image, '_getexif') and image._getexif() is not None:
+                exif = image.info.get('exif')
         except FileNotFoundError:
             raise BadOptionError("找不到输入图像文件")
         except OSError:
@@ -122,6 +141,10 @@ class WaterMarker:
         except ValueError:
             preview_image = image.copy()
             preview_image.paste(watermark_copy, box=position)
+        
+        # 确保预览图像保留EXIF数据
+        if exif:
+            preview_image.info['exif'] = exif
         
         return preview_image
 
@@ -181,23 +204,12 @@ class WaterMarker:
                                   self.watermark.size[0] * self.min_scale,
                                   self.watermark.size[0] * self.max_scale))
 
-        # 应用用户定义的横向缩放比例
-        new_width = int(base_width * scale_x)
+        # 计算水印的高度，保持水印的原始宽高比
+        base_height = int(base_width / self.watermark_ratio)
         
-        # 如果使用相同的横纵比例，则根据原始比例计算高度
-        if scale_x == scale_y:
-            new_height = int(new_width / self.watermark_ratio)
-        else:
-            # 否则，单独计算高度
-            if image_width > image_height:
-                base_height = int(base_width / self.watermark_ratio)
-            elif image_width < image_height:
-                base_height = int(base_width / self.watermark_ratio)
-            else:
-                base_height = int(base_width / self.watermark_ratio)
-            
-            # 应用用户定义的纵向缩放比例
-            new_height = int(base_height * scale_y)
+        # 应用用户定义的缩放比例
+        new_width = int(base_width * scale_x)
+        new_height = int(base_height * scale_y)
 
         # Apply it
         return self.watermark.copy().resize((new_width, new_height))
