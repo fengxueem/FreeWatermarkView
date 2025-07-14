@@ -108,7 +108,7 @@ class WatermarkOptions(Frame):
         # ----------- Size options -----------
         # 保持横纵比例一致的复选框
         aspect_ratio_frame = Frame(self)
-        Checkbutton(aspect_ratio_frame, text="保持横纵比例",
+        Checkbutton(aspect_ratio_frame, text="Keep aspect ratio",
                     variable=self.keep_aspect_ratio,
                     command=self.update_aspect_ratio,
                     onvalue=True, offvalue=False).pack(side=LEFT)
@@ -116,7 +116,7 @@ class WatermarkOptions(Frame):
         
         # 横向缩放比例滑块
         scale_x_frame = Frame(self)
-        Label(scale_x_frame, text="横向缩放:").pack(side=LEFT)
+        Label(scale_x_frame, text="Scale x:").pack(side=LEFT)
         self.scale_x_slider = Scale(scale_x_frame, from_=0.1, to=3.0, 
                                    orient=HORIZONTAL, resolution=0.1,
                                    variable=self.scale_x, 
@@ -128,7 +128,7 @@ class WatermarkOptions(Frame):
         
         # 纵向缩放比例滑块
         scale_y_frame = Frame(self)
-        Label(scale_y_frame, text="纵向缩放:").pack(side=LEFT)
+        Label(scale_y_frame, text="Scale y:").pack(side=LEFT)
         self.scale_y_slider = Scale(scale_y_frame, from_=0.1, to=3.0, 
                                    orient=HORIZONTAL, resolution=0.1,
                                    variable=self.scale_y, 

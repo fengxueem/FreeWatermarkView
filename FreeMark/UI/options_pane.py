@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 
-from FreeMark.UI.ouput_selector import OutputSelector
+from FreeMark.UI.output_selector import OutputSelector
 from FreeMark.UI.watermark_selector import WatermarkSelector
 from FreeMark.UI.watermark_options import WatermarkOptions
 from FreeMark.UI.preview_window import PreviewWindow
@@ -40,7 +40,7 @@ class OptionsPane(Frame):
         self.preview_frame = Frame(self)
         self.preview_frame.pack(fill=X, pady=10, anchor=N)
         
-        self.preview_button = Button(self.preview_frame, text="预览水印效果", command=self.preview_watermark)
+        self.preview_button = Button(self.preview_frame, text="Preview", command=self.preview_watermark)
         self.preview_button.pack(side=RIGHT, padx=5)
 
     def get_watermark_path(self):

@@ -13,7 +13,7 @@ class PreviewWindow(Toplevel):
     """
     def __init__(self, master, image_path, watermark_path, options):
         super().__init__(master)
-        self.title("水印预览")
+        self.title("Preview")
         self.geometry("800x600")
         self.minsize(400, 300)
         
