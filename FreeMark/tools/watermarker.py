@@ -38,7 +38,7 @@ class WaterMarker:
         self.watermark_ratio = None
         self.watermark = None
 
-    def apply_watermark(self, input_path, output_path, scale=True,
+    def apply_watermark(self, input_path, output_path,
                         pos="SE", padding=((20, "px"), (5, "px")),
                         opacity=0.5, scale_x=1.0, scale_y=1.0):
         """
@@ -58,15 +58,8 @@ class WaterMarker:
 
         image = Image.open(input_path)
 
-        if scale and \
-                (not self.previous_size or self.previous_size != image.size):
+        if (not self.previous_size or self.previous_size != image.size):
             self.watermark_copy = self.scale_watermark(image, scale_x, scale_y)
-            if opacity < 1:
-                self.needs_opacity = True
-            else:
-                self.needs_opacity = False
-        elif not self.watermark_copy:
-            self.watermark_copy = self.watermark.copy()
             if opacity < 1:
                 self.needs_opacity = True
             else:
@@ -91,7 +84,7 @@ class WaterMarker:
         image.save(output_path)
 
     def apply_watermark_preview(self, input_path, pos="SE", padding=((20, "px"), (5, "px")),
-                               scale=True, opacity=0.5, scale_x=1.0, scale_y=1.0):
+                               opacity=0.5, scale_x=1.0, scale_y=1.0):
         """
         应用水印到图像并返回预览图像，但不保存
         :param input_path: 输入图像路径
@@ -111,10 +104,8 @@ class WaterMarker:
             raise BadOptionError("输入图像格式不兼容")
 
         watermark_copy = None
-        if scale:
-            watermark_copy = self.scale_watermark(image, scale_x, scale_y)
-        else:
-            watermark_copy = self.watermark.copy()
+        watermark_copy = self.scale_watermark(image, scale_x, scale_y)
+
 
         # 改变水印不透明度
         if opacity < 1:

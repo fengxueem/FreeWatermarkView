@@ -65,9 +65,6 @@ class OptionsPane(Frame):
 
     def get_opacity(self):
         return self.watermark_options.opacity.get()/100
-
-    def should_scale(self):
-        return self.watermark_options.scale_watermark.get()
         
     def preview_watermark(self):
         """
@@ -95,7 +92,6 @@ class OptionsPane(Frame):
             "pos": self.get_watermark_pos(),
             "padding": self.get_padding(),
             "opacity": self.get_opacity(),
-            "scale": self.should_scale(),
             "scale_x": self.watermark_options.scale_x.get(),
             "scale_y": self.watermark_options.scale_y.get()
         }

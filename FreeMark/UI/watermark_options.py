@@ -23,9 +23,6 @@ class WatermarkOptions(Frame):
         self.unit_y.set(self.unit_options[1])
 
         # 水印缩放相关变量
-        self.scale_watermark = BooleanVar()
-        self.scale_watermark.set(True)
-        
         # 新增：横向和纵向缩放比例
         self.scale_x = DoubleVar()
         self.scale_y = DoubleVar()
@@ -109,13 +106,6 @@ class WatermarkOptions(Frame):
         opacity_frame.pack(anchor=W)
 
         # ----------- Size options -----------
-        scale_frame = Frame(self)
-        Checkbutton(scale_frame, text="启用水印缩放",
-                    variable=self.scale_watermark,
-                    command=self.toggle_scale_options,
-                    onvalue=True, offvalue=False).pack(side=LEFT)
-        scale_frame.pack(anchor=W, pady=(5, 0), fill=X)
-        
         # 保持横纵比例一致的复选框
         aspect_ratio_frame = Frame(self)
         Checkbutton(aspect_ratio_frame, text="保持横纵比例",
