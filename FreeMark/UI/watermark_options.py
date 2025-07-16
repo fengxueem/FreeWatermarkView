@@ -96,8 +96,12 @@ class WatermarkOptions(Frame):
         Label(opacity_frame, text="Opacity").pack(side=LEFT, anchor=S)
 
         self.opacity_slider = Scale(opacity_frame, from_=0, to=100, orient=HORIZONTAL,
-              variable=self.opacity)
+              variable=self.opacity, command=self.on_opacity_change)
+        self.preview_timeout = None
         self.opacity_slider.pack(side=LEFT, anchor=N, padx=5, fill=X, expand=True)
+        
+        # 绑定滑动条释放事件，取消延时触发并立即更新预览
+        self.opacity_slider.bind("<ButtonRelease-1>", lambda e: self.on_slider_release())
 
         Entry(opacity_frame, textvariable=self.opacity, width=4,
               validate="key", validatecommand=validate).pack(side=LEFT,
@@ -129,6 +133,8 @@ class WatermarkOptions(Frame):
                                    variable=self.scale_x, 
                                    command=self.on_scale_x_change)
         self.scale_x_slider.pack(side=LEFT, fill=X, expand=True)
+        # 绑定滑动条释放事件，取消延时触发并立即更新预览
+        self.scale_x_slider.bind("<ButtonRelease-1>", lambda e: self.on_slider_release())
         self.scale_x_label = Label(scale_x_frame, text="1.00x")
         self.scale_x_label.pack(side=LEFT, padx=5)
         scale_x_frame.pack(anchor=W, pady=(5, 0), fill=X)
@@ -141,6 +147,8 @@ class WatermarkOptions(Frame):
                                    variable=self.scale_y, 
                                    command=self.on_scale_y_change)
         self.scale_y_slider.pack(side=LEFT, fill=X, expand=True)
+        # 绑定滑动条释放事件，取消延时触发并立即更新预览
+        self.scale_y_slider.bind("<ButtonRelease-1>", lambda e: self.on_slider_release())
         self.scale_y_label = Label(scale_y_frame, text="1.00x")
         self.scale_y_label.pack(side=LEFT, padx=5)
         scale_y_frame.pack(anchor=W, pady=(5, 0), fill=X)
@@ -159,7 +167,8 @@ class WatermarkOptions(Frame):
             
     def toggle_scale_options(self):
         """启用或禁用缩放选项"""
-        state = "normal" if self.scale_watermark.get() else "disabled"
+        # 修复：移除对不存在变量的引用
+        state = "normal"  # 默认启用
         self.scale_x_slider.config(state=state)
         self.scale_y_slider.config(state=state)
         
@@ -170,6 +179,31 @@ class WatermarkOptions(Frame):
             self.scale_y.set(self.scale_x.get())
             self.scale_y_label.config(text=f"{self.scale_y.get():.2f}x")
             
+    def on_opacity_change(self, value):
+        """处理透明度滑块的变化，带防抖功能"""
+        if self.preview_timeout:
+            self.after_cancel(self.preview_timeout)
+        
+        # 当滑动条释放时（value为字符串）或值改变时触发预览
+        self.preview_timeout = self.after(300, self.trigger_preview)
+        
+    def on_slider_release(self):
+        """滑动条释放时的处理"""
+        # 取消延时触发
+        if self.preview_timeout:
+            self.after_cancel(self.preview_timeout)
+            self.preview_timeout = None
+        
+        # 立即触发预览
+        self.trigger_preview()
+    
+    def trigger_preview(self):
+        """触发预览更新"""
+        # 直接调用master的preview_watermark方法
+        if hasattr(self.master, 'preview_watermark'):
+            self.master.preview_watermark()
+        self.preview_timeout = None
+        
     def on_scale_x_change(self, value):
         """处理横向缩放滑块的变化"""
         # 更新标签显示
@@ -180,6 +214,11 @@ class WatermarkOptions(Frame):
             self.scale_y.set(float(value))
             self.scale_y_label.config(text=f"{float(value):.2f}x")
             
+        # 当滑动条释放时触发预览
+        if self.preview_timeout:
+            self.after_cancel(self.preview_timeout)
+        self.preview_timeout = self.after(300, self.trigger_preview)
+            
     def on_scale_y_change(self, value):
         """处理纵向缩放滑块的变化"""
         # 更新标签显示
@@ -189,3 +228,8 @@ class WatermarkOptions(Frame):
         if self.keep_aspect_ratio.get():
             self.scale_x.set(float(value))
             self.scale_x_label.config(text=f"{float(value):.2f}x")
+            
+        # 当滑动条释放时触发预览
+        if self.preview_timeout:
+            self.after_cancel(self.preview_timeout)
+        self.preview_timeout = self.after(300, self.trigger_preview)

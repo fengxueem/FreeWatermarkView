@@ -14,7 +14,10 @@ class OptionsPane(Frame):
     """
     def __init__(self, master=None):
         super().__init__(master)
-
+        # 初始化时创建预览窗口但保持隐藏
+        self.preview_window = PreviewWindow(self, None, None, {})
+        self.preview_window.window.withdraw()  # 初始隐藏窗口
+        
         self.file_selector = None
         self.output_selector = OutputSelector(self)
         self.watermark_selector = WatermarkSelector(self)
@@ -59,6 +62,21 @@ class OptionsPane(Frame):
     def get_opacity(self):
         return self.watermark_options.opacity.get()/100
         
+    def bind_all_options(self, callback):
+        """Bind all option changes to the given callback"""
+        # Watermark selector
+        self.watermark_selector.watermark_path.trace_add('write', callback)
+        
+        # Watermark options
+        self.watermark_options.position.trace_add('write', callback)
+        self.watermark_options.padx.trace_add('write', callback)
+        self.watermark_options.pady.trace_add('write', callback)
+        self.watermark_options.unit_x.trace_add('write', callback)
+        self.watermark_options.unit_y.trace_add('write', callback)
+        
+        # Output selector
+        self.output_selector.output_dir.trace_add('write', callback)
+
     def preview_watermark(self):
         """
         Preview the watermark on the selected image
@@ -89,5 +107,6 @@ class OptionsPane(Frame):
             "scale_y": self.watermark_options.scale_y.get()
         }
         
-        # Create preview window
-        preview = PreviewWindow(self, image_path, watermark_path, options)
+        # 更新现有预览窗口内容
+        self.preview_window.update_preview(image_path, watermark_path, options)
+        self.preview_window.window.deiconify()  # 显示窗口

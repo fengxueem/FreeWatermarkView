@@ -7,15 +7,18 @@ from FreeMark.tools.watermarker import WaterMarker
 from FreeMark.tools.errors import BadOptionError
 
 
-class PreviewWindow(Toplevel):
+class PreviewWindow:
     """
     预览窗口，显示带有水印的图像预览
     """
     def __init__(self, master, image_path, watermark_path, options):
-        super().__init__(master)
-        self.title("Preview")
-        self.geometry("800x600")
-        self.minsize(400, 300)
+        self.parent = master  # 保存原始的master引用
+        
+        # 创建一个新的Toplevel窗口
+        self.window = Toplevel(master)
+        self.window.title("Preview")
+        self.window.geometry("800x600")
+        self.window.minsize(800, 600)
         
         self.image_path = image_path
         self.watermark_path = watermark_path
@@ -25,37 +28,43 @@ class PreviewWindow(Toplevel):
         self.photo = None
         
         self.create_widgets()
-        self.generate_preview()
+        
+        # 如果提供了有效的图像路径和水印路径，则生成预览
+        if self.image_path and self.watermark_path and os.path.exists(self.image_path) and os.path.exists(self.watermark_path):
+            self.generate_preview()
         
         # 使窗口居中，但等待窗口完全创建后再执行
-        self.after_idle(self.center_window)
+        self.window.after_idle(self.center_window)
     
     def center_window(self):
         """将窗口居中显示"""
-        self.update_idletasks()
-        width = self.winfo_width()
-        height = self.winfo_height()
-        x = (self.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.winfo_screenheight() // 2) - (height // 2)
-        self.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        self.window.update_idletasks()
+        width = self.window.winfo_width()
+        height = self.window.winfo_height()
+        x = (self.window.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.window.winfo_screenheight() // 2) - (height // 2)
+        self.window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         
     def create_widgets(self):
         """创建预览窗口的GUI元素"""
         # 创建一个框架来容纳图像
-        self.image_frame = Frame(self)
+        self.image_frame = Frame(self.window)
         self.image_frame.pack(fill=BOTH, expand=True, padx=10, pady=10)
         
         # 创建一个标签来显示图像
         self.image_label = Label(self.image_frame)
         self.image_label.pack(fill=BOTH, expand=True)
         
-        # 创建一个框架来容纳按钮
-        self.button_frame = Frame(self)
-        self.button_frame.pack(fill=X, padx=10, pady=10)
+    def update_preview(self, image_path, watermark_path, options):
+        """更新预览图像"""
+        # 更新路径和选项
+        self.image_path = image_path
+        self.watermark_path = watermark_path
+        self.options = options
         
-        # 创建关闭按钮
-        self.close_button = Button(self.button_frame, text="关闭", command=self.destroy, width=10)
-        self.close_button.pack(side=RIGHT, padx=5)
+        # 如果提供了有效的图像路径和水印路径，则生成预览
+        if self.image_path and self.watermark_path and os.path.exists(self.image_path) and os.path.exists(self.watermark_path):
+            self.generate_preview()
         
     def generate_preview(self):
         """生成预览图像"""
@@ -78,15 +87,15 @@ class PreviewWindow(Toplevel):
             
         except BadOptionError as e:
             messagebox.showerror("预览错误", str(e))
-            self.destroy()
+            self.window.withdraw()
         except Exception as e:
             messagebox.showerror("预览错误", f"生成预览时出错: {str(e)}")
-            self.destroy()
+            self.window.withdraw()
     
     def display_image(self, img):
         """在窗口中显示图像"""
         # 获取窗口大小
-        self.update_idletasks()
+        self.window.update_idletasks()
         window_width = self.image_frame.winfo_width()
         window_height = self.image_frame.winfo_height()
         
